@@ -31,6 +31,8 @@ SharedWorker対応ブラウザーで試してください。非対応の場合�
 ### 1. 状態共有
 
 1. 両タブの **Worker IDが同じ**、**タブIDが異なる**ことを確認。
+   タブには接続順の **TAB 01 / TAB 02** と異なる背景・アクセントカラーを表示します。
+   配色は緑・青・ローズ・アンバー・紫・ティールの6色で循環します。番号は再接続時に新しくなります。
 2. タブAで「+1 加算」。タブBも同じ数になります。
 3. タブBで「リセット」。タブAも0になります。
 4. さらにタブCを開くと、現在の値から始まります。
@@ -85,7 +87,7 @@ APIのHTTPキャッシュは無効にしているため、この再利用はWork
 
 ```js
 const shared = new SharedWorker("/shared-worker.js", {
-  name: "angular20-shared-worker-hello",
+  name: "angular20-shared-worker-hello-v2",
 });
 shared.port.addEventListener("message", ({ data }) => console.log(data));
 shared.port.start();

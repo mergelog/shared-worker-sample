@@ -60,7 +60,7 @@ test('WebSocketは1接続だけで、全タブに応答し、1タブを閉じて
   await b.evaluate(async () => {
     await new Promise<void>((resolve) => {
       const worker = new SharedWorker('/shared-worker.js', {
-        name: 'angular20-shared-worker-hello',
+        name: 'angular20-shared-worker-hello-v2',
       });
       worker.port.onmessage = ({ data }) => {
         if (data.type !== 'hello') return;
@@ -136,7 +136,7 @@ test('2タブから同時にAPIを要求しても取得中のPromiseが共有さ
       () =>
         new Promise<string>((resolve) => {
           const worker = new SharedWorker('/shared-worker.js', {
-            name: 'angular20-shared-worker-hello',
+            name: 'angular20-shared-worker-hello-v2',
           });
           let tabId = '';
           worker.port.onmessage = ({ data }) => {

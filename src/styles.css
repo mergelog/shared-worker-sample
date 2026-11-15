@@ -11,6 +11,39 @@
 body {
   margin: 0;
 }
+app-root {
+  display: block;
+  min-height: 100vh;
+  background: var(--tab-background, #e4f2e9);
+  border-top: 7px solid var(--tab-accent, #176e4f);
+}
+.tab-identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-bottom: 28px;
+  color: var(--tab-accent);
+}
+.tab-label {
+  padding: 9px 15px;
+  border-radius: 8px;
+  background: var(--tab-accent);
+  color: white;
+  font:
+    750 24px ui-monospace,
+    monospace;
+  letter-spacing: 0.04em;
+}
+.tab-color {
+  font:
+    700 12px ui-monospace,
+    monospace;
+  letter-spacing: 0.12em;
+}
+.tab-description {
+  font-size: 12px;
+}
 main {
   max-width: 1100px;
   margin: 0 auto;
@@ -21,7 +54,7 @@ header {
   padding-bottom: 30px;
 }
 .eyebrow {
-  color: #217768;
+  color: var(--tab-accent);
   font-size: 11px;
   font-weight: 750;
   letter-spacing: 0.16em;
@@ -47,10 +80,10 @@ button,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #176e5e;
+  border: 1px solid var(--tab-accent);
   border-radius: 7px;
   padding: 10px 15px;
-  background: #176e5e;
+  background: var(--tab-accent);
   color: white;
   font: inherit;
   font-size: 13px;
@@ -69,13 +102,13 @@ button:disabled {
 }
 .secondary {
   background: white;
-  color: #285c51;
-  border-color: #cfded8;
+  color: var(--tab-accent);
+  border-color: var(--tab-border);
 }
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-  outline: 3px solid #55b8a5;
+  outline: 3px solid var(--tab-accent);
   outline-offset: 3px;
 }
 .connection {
@@ -83,15 +116,15 @@ input:focus-visible {
   flex-wrap: wrap;
   gap: 12px 24px;
   padding: 18px 20px;
-  background: #e5eeea;
-  border: 1px solid #d5e2db;
+  background: var(--tab-soft);
+  border: 1px solid var(--tab-border);
   border-radius: 9px;
   margin: 8px 0 24px;
   font-size: 12px;
   align-items: center;
 }
 .connection code {
-  color: #255e52;
+  color: var(--tab-accent);
 }
 .status {
   display: flex;
@@ -107,8 +140,8 @@ input:focus-visible {
   background: #84918c;
 }
 .status.connected::before {
-  background: #19866b;
-  box-shadow: 0 0 0 3px #19866b17;
+  background: var(--tab-accent);
+  box-shadow: 0 0 0 3px transparent;
 }
 .demos {
   border: 0;
@@ -120,7 +153,7 @@ input:focus-visible {
 }
 .card {
   background: white;
-  border: 1px solid #dee6e2;
+  border: 1px solid var(--tab-border);
   border-radius: 12px;
   padding: 26px;
   min-width: 0;
@@ -135,8 +168,8 @@ input:focus-visible {
   place-items: center;
   width: 32px;
   height: 32px;
-  background: #eaf2ee;
-  color: #287262;
+  background: var(--tab-soft);
+  color: var(--tab-accent);
   border-radius: 8px;
   font:
     600 12px ui-monospace,
@@ -163,7 +196,7 @@ h2 {
     monospace;
   letter-spacing: -0.08em;
   margin: 24px 0;
-  color: #176e5e;
+  color: var(--tab-accent);
 }
 .actions {
   display: flex;
@@ -237,7 +270,7 @@ small {
 .api-message {
   font-size: 15px;
   font-weight: 600;
-  color: #216d59;
+  color: var(--tab-accent);
 }
 dl {
   margin: 12px 0;
@@ -257,7 +290,7 @@ dd {
 }
 .sent {
   min-height: 18px;
-  color: #287262 !important;
+  color: var(--tab-accent) !important;
   font-size: 11px !important;
   overflow-wrap: anywhere;
 }
@@ -292,6 +325,9 @@ footer code {
   header .button {
     position: static;
     margin-top: 8px;
+  }
+  .tab-description {
+    flex-basis: 100%;
   }
   .demos {
     grid-template-columns: 1fr;

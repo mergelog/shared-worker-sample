@@ -37,7 +37,13 @@ export type ClientMessage =
   | { type: 'disconnect' };
 
 export type WorkerMessage =
-  | { type: 'hello'; tabId: string; workerId: string; message: string }
+  | {
+      type: 'hello';
+      tabId: string;
+      tabNumber: number;
+      workerId: string;
+      message: string;
+    }
   | { type: 'snapshot'; state: Snapshot }
   | { type: 'socket:message'; message: SocketMessage }
   | {

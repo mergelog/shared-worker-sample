@@ -1,9 +1,16 @@
 <main>
   <header>
+    <div class="tab-identity" aria-label="このタブの識別情報">
+      <span class="tab-label" data-testid="tab-label">{{ tabLabel() }}</span>
+      <span class="tab-color">{{ tabTheme().name }}</span>
+      <span class="tab-description"
+        >この色が、いま操作しているタブの目印です。</span
+      >
+    </div>
     <p class="eyebrow">ANGULAR 20 / WEB PLATFORM LAB</p>
     <h1>ひとつのWorker。<br />つながるタブ。</h1>
     <p class="intro">
-      SharedWorkerの使い方を、4つの小さなデモで。<br />同じページをもう1タブ開いて、変化を見比べてみましょう。
+      SharedWorkerの使い方を、4つの小さなデモで。<br />もう1タブ開くと、違う色の画面につながります。<br />色の違うタブで、同じ値が動く様子を見比べてみましょう。
     </p>
     <a class="button secondary" href="./" target="_blank" rel="noopener"
       >もう1タブ開く ↗</a

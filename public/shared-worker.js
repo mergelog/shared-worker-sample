@@ -12,6 +12,7 @@ const workerId = crypto.randomUUID().slice(0, 8);
 /** @type {Map<MessagePort, string>} */
 const ports = new Map();
 let counter = 0;
+let nextTabNumber = 1; // 接続順の番号を渡し、タブごとの見た目を分ける。
 
 /** 特定のタブに送る。 @param {MessagePort} port @param {WorkerMessage} message */
 function send(port, message) {
@@ -214,6 +215,7 @@ worker.addEventListener("connect", (event) => {
   send(port, {
     type: "hello",
     tabId,
+    tabNumber: nextTabNumber++,
     workerId,
     message: "Hello from SharedWorker!",
   });
