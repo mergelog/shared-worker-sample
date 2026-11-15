@@ -1,6 +1,6 @@
 // Angular と Worker が共有する「メッセージの約束」。ランタイム依存は置かない。
 export interface ApiData {
-  message: string;
+  product: { id: number; name: string; price: number };
   requestId: number;
   fetchedAt: string;
 }
@@ -12,7 +12,7 @@ export type SocketStatus =
   | 'reconnecting';
 
 export interface Snapshot {
-  counter: number;
+  favorite: boolean;
   tabs: number;
   cache: ApiData | null;
   cacheLoading: boolean;
@@ -28,8 +28,7 @@ export interface SocketMessage {
 }
 
 export type ClientMessage =
-  | { type: 'counter:increment' }
-  | { type: 'counter:reset' }
+  | { type: 'favorite:set'; favorite: boolean }
   | { type: 'socket:connect' }
   | { type: 'socket:send'; text: string }
   | { type: 'cache:get'; refresh: boolean }
@@ -40,7 +39,6 @@ export type WorkerMessage =
   | {
       type: 'hello';
       tabId: string;
-      tabNumber: number;
       workerId: string;
       message: string;
     }

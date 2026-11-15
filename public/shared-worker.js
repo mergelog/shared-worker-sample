@@ -11,8 +11,7 @@ const worker = /** @type {SharedWorkerGlobalScope} */ (
 const workerId = crypto.randomUUID().slice(0, 8);
 /** @type {Map<MessagePort, string>} */
 const ports = new Map();
-let counter = 0;
-let nextTabNumber = 1; // 接続順の番号を渡し、タブごとの見た目を分ける。
+let favorite = false;
 
 /** 特定のタブに送る。 @param {MessagePort} port @param {WorkerMessage} message */
 function send(port, message) {
@@ -30,7 +29,7 @@ function publishSnapshot() {
   broadcast({
     type: "snapshot",
     state: {
-      counter,
+      favorite,
       tabs: ports.size,
       cache,
       cacheLoading: inFlight !== null,
@@ -39,10 +38,10 @@ function publishSnapshot() {
   });
 }
 
-// 1. 状態共有: 値を持つのはタブではなく Worker。ここで更新してから全タブに配る。
-/** @param {boolean} reset */
-function changeCounter(reset) {
-  counter = reset ? 0 : counter + 1;
+// 1. 状態共有: お気に入りを持つのはWorker。変更後に全画面へ送る。
+/** @param {boolean} value */
+function setFavorite(value) {
+  favorite = value;
   publishSnapshot();
 }
 
@@ -119,7 +118,7 @@ async function getCachedData(refresh, requestedBy) {
   }
   const source = inFlight ? "in-flight" : "network";
   if (!inFlight) {
-    inFlight = fetch("/api/hello", {
+    inFlight = fetch("/api/product", {
       cache: "no-store",
       signal: AbortSignal.timeout(10_000),
     })
@@ -155,11 +154,8 @@ function handleMessage(port, message) {
   const tabId = ports.get(port);
   if (!tabId) return;
   switch (message.type) {
-    case "counter:increment":
-      changeCounter(false);
-      break;
-    case "counter:reset":
-      changeCounter(true);
+    case "favorite:set":
+      setFavorite(message.favorite);
       break;
     case "socket:connect":
       connectSocket();
@@ -215,7 +211,6 @@ worker.addEventListener("connect", (event) => {
   send(port, {
     type: "hello",
     tabId,
-    tabNumber: nextTabNumber++,
     workerId,
     message: "Hello from SharedWorker!",
   });

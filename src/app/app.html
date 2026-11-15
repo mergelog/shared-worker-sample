@@ -1,233 +1,165 @@
 <main>
-  <header>
-    <div class="tab-identity" aria-label="このタブの識別情報">
-      <span class="tab-label" data-testid="tab-label">{{ tabLabel() }}</span>
-      <span class="tab-color">{{ tabTheme().name }}</span>
-      <span class="tab-description"
-        >この色が、いま操作しているタブの目印です。</span
-      >
-    </div>
-    <p class="eyebrow">ANGULAR 20 / WEB PLATFORM LAB</p>
-    <h1>ひとつのWorker。<br />つながるタブ。</h1>
-    <p class="intro">
-      SharedWorkerの使い方を、4つの小さなデモで。<br />もう1タブ開くと、違う色の画面につながります。<br />色の違うタブで、同じ値が動く様子を見比べてみましょう。
+  @if (isProduct) {
+    <h1>これは商品画面です。</h1>
+    <p>ボタンを押すと、別タブのメイン画面にも結果が反映されます。</p>
+    <p>
+      <a href="./" target="_blank" rel="noopener">メイン画面を別タブで開く</a>
     </p>
-    <a class="button secondary" href="./" target="_blank" rel="noopener"
-      >もう1タブ開く ↗</a
-    >
-  </header>
-
-  <section class="connection" aria-label="Worker接続情報">
-    <span class="status" [class.connected]="shared.ready()"
-      >{{ shared.greeting() }}</span
-    >
-    <span>このタブ <code data-testid="tab-id">{{ shared.tabId() }}</code></span>
-    <span
-      >Worker <code data-testid="worker-id">{{ shared.workerId() }}</code></span
-    >
-    <span
-      >接続タブ
-      <strong data-testid="tab-count"
-        >{{ shared.snapshot().tabs }}</strong
-      ></span
-    >
-  </section>
+  } @else {
+    <h1>これはメイン画面です。</h1>
+    <p>商品画面を別タブで開いて、ボタンを押してください。この画面で結果を確認できます。</p>
+    <p>
+      <a href="./?page=product" target="_blank" rel="noopener">商品画面を別タブで開く</a>
+    </p>
+  }
   @if (shared.error()) {
-  <p class="error" role="alert">{{ shared.error() }}</p>
+    <p role="alert">{{ shared.error() }}</p>
   }
 
-  <fieldset class="demos" [disabled]="!shared.ready()">
-    <legend class="sr-only">SharedWorkerの4つのデモ</legend>
-    <section class="card" aria-labelledby="state-title">
-      <div class="card-top">
-        <span class="number">01</span><code>state</code>
-      </div>
-      <h2 id="state-title">状態共有</h2>
+  <fieldset [disabled]="!shared.ready()">
+    <legend>SharedWorkerの4つの使い方</legend>
+
+    <section>
+      <h2>1. 状態共有：お気に入り</h2>
       <p>
-        Workerが持つカウンターを、すべてのタブに反映。連打してもWorkerが順番に加算します。
+        お気に入り：<strong data-testid="favorite">{{
+          shared.snapshot().favorite ? "登録済み" : "未登録"
+        }}</strong>
       </p>
-      <output class="counter" data-testid="counter" aria-live="polite"
-        >{{ shared.snapshot().counter }}</output
-      >
-      <div class="actions">
-        <button
-          type="button"
-          (click)="shared.send({ type: 'counter:increment' })"
-        >
-          +1 加算
+      @if (isProduct) {
+        <p>下のボタンを押すと、メイン画面のお気に入りも変わります。</p>
+        <button type="button" (click)="shared.send({ type: 'favorite:set', favorite: true })">
+          お気に入りに登録
         </button>
-        <button
-          class="secondary"
-          type="button"
-          (click)="shared.send({ type: 'counter:reset' })"
-        >
-          リセット
+        <button type="button" (click)="shared.send({ type: 'favorite:set', favorite: false })">
+          お気に入りを解除
         </button>
-      </div>
-      <p class="hint">試す: 片方のタブで加算 → もう片方も同じ値に。</p>
+      } @else {
+        <p>商品画面で「お気に入りに登録」を押すと「登録済み」になります。</p>
+      }
     </section>
 
-    <section class="card" aria-labelledby="socket-title">
-      <div class="card-top">
-        <span class="number">02</span><code>websocket</code>
-      </div>
-      <h2 id="socket-title">WebSocket共有</h2>
+    <section>
+      <h2>2. WebSocket共有：1つの接続で受信</h2>
       <p>
-        接続を持つのはWorkerだけ。どのタブから送っても、サーバーの応答を全タブが受け取ります。
+        接続状態：<span data-testid="socket-status">{{ shared.snapshot().socketStatus }}</span>
       </p>
-      <div class="socket-state">
-        <code data-testid="socket-status"
-          >{{ shared.snapshot().socketStatus }}</code
-        >
+      @if (isProduct) {
+        <p>「WebSocketを接続する」を押してから送信すると、両画面に同じ応答が届きます。</p>
         <button
           type="button"
-          class="secondary"
           (click)="shared.send({ type: 'socket:connect' })"
           [disabled]="shared.snapshot().socketStatus !== 'disconnected'"
         >
-          接続する
+          WebSocketを接続する
         </button>
-      </div>
-      <form (ngSubmit)="sendSocket()" class="input-row">
-        <label class="sr-only" for="socket-text">WebSocketメッセージ</label>
-        <input
-          id="socket-text"
-          name="socketText"
-          [(ngModel)]="socketText"
-          maxlength="200"
-          placeholder="サーバーに送るメッセージ"
-        />
-        <button
-          type="submit"
-          [disabled]="shared.snapshot().socketStatus !== 'connected' || !socketText.trim()"
-        >
-          送信
-        </button>
-      </form>
-      <div class="log" data-testid="socket-log" aria-live="polite">
-        @for (message of shared.socketMessages(); track $index) {
-        <div class="log-item">
-          <span>{{ message.text }}</span>
-          <small
-            >接続ID: {{ message.connectionId }} / サーバー全体の接続数: {{
-            message.activeConnections }} / {{ message.timestamp |
-            date:'HH:mm:ss' }}</small
-          >
-        </div>
-        } @empty {
-        <p class="empty">
-          接続すると、5秒ごとの時刻と送信したメッセージが届きます。
-        </p>
-        }
-      </div>
-      <p class="hint">試す: 両タブから接続 → 接続IDが同じ、接続数は1。</p>
-    </section>
-
-    <section class="card" aria-labelledby="cache-title">
-      <div class="card-top">
-        <span class="number">03</span><code>cache</code>
-      </div>
-      <h2 id="cache-title">データキャッシュ</h2>
-      <p>
-        APIの結果をWorkerのメモリに30秒間保存。同時に取得してもAPIリクエストは1回です。
-      </p>
-      <div class="actions">
         <button
           type="button"
-          (click)="shared.send({ type: 'cache:get', refresh: false })"
-          [disabled]="shared.snapshot().cacheLoading"
+          (click)="shared.send({ type: 'socket:send', text: '商品画面からこんにちは' })"
+          [disabled]="shared.snapshot().socketStatus !== 'connected'"
         >
-          データを取得
+          WebSocketでメッセージを送る
         </button>
+      } @else {
+        <p>
+          商品画面で接続・送信すると、ここにも応答が届きます。接続IDが同じなら1つの接続を共有しています。
+        </p>
+      }
+      <ul data-testid="socket-log" aria-live="polite">
+        @for (message of shared.socketMessages(); track $index) {
+          <li>
+            {{ message.text }}（接続ID：{{ message.connectionId }}、サーバー全体の接続数：{{
+              message.activeConnections
+            }}）
+          </li>
+        } @empty {
+          <li>まだ受信していません。</li>
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. データキャッシュ：商品データ</h2>
+      <p>
+        「商品を取得」を押すと、APIの結果を両画面に表示します。30秒以内はキャッシュを使い、APIリクエスト番号は変わりません。
+      </p>
+      <button
+        type="button"
+        (click)="shared.send({ type: 'cache:get', refresh: false })"
+        [disabled]="shared.snapshot().cacheLoading"
+      >
+        商品を取得
+      </button>
+      @if (isProduct) {
         <button
-          class="secondary"
           type="button"
           (click)="shared.send({ type: 'cache:get', refresh: true })"
           [disabled]="shared.snapshot().cacheLoading"
         >
-          再取得（キャッシュ更新）
+          商品を再取得（キャッシュ更新）
         </button>
-      </div>
+      }
       <div
-        class="cache-result"
         data-testid="cache-result"
         aria-live="polite"
         [attr.aria-busy]="shared.snapshot().cacheLoading"
       >
         @if (shared.snapshot().cacheLoading) {
-        <p>APIから取得中…</p>
-        } @if (shared.snapshot().cache; as data) {
-        <p class="api-message">{{ data.message }}</p>
-        <dl>
-          <div>
-            <dt>APIリクエスト番号</dt>
-            <dd data-testid="request-id">{{ data.requestId }}</dd>
-          </div>
-          <div>
-            <dt>取得時刻</dt>
-            <dd>{{ data.fetchedAt | date:'HH:mm:ss' }}</dd>
-          </div>
-        </dl>
-        } @else if (!shared.snapshot().cacheLoading) {
-        <p class="empty">まだデータがありません。</p>
+          <p>取得中です。</p>
         }
-        <small data-testid="cache-source">{{ shared.cacheSource() }}</small>
+        @if (shared.snapshot().cache; as data) {
+          <p>商品：{{ data.product.name }}（{{ data.product.price }}円）</p>
+          <p>
+            APIリクエスト番号：<span data-testid="request-id">{{ data.requestId }}</span>
+          </p>
+          <p>取得時刻：{{ data.fetchedAt | date: "HH:mm:ss" }}</p>
+        } @else {
+          <p>商品データは未取得です。</p>
+        }
+        <p>
+          取得元：<span data-testid="cache-source">{{ shared.cacheSource() }}</span>
+        </p>
       </div>
-      <p class="hint">
-        試す: 別タブで続けて取得 → 番号が変わらず、取得元がcacheに。
-      </p>
+      @if (!isProduct) {
+        <p>
+          商品画面で取得した後、この画面でも「商品を取得」を押してください。取得元がcacheになります。
+        </p>
+      }
     </section>
 
-    <section class="card" aria-labelledby="notify-title">
-      <div class="card-top">
-        <span class="number">04</span><code>message</code>
-      </div>
-      <h2 id="notify-title">タブ間通信</h2>
-      <p>
-        操作をほかのタブへ通知。通知は保存せず、その時点で接続しているタブだけに届けます。
-      </p>
-      <form (ngSubmit)="notify()" class="input-row">
-        <label class="sr-only" for="notification-text"
-          >タブ間通知メッセージ</label
-        >
-        <input
-          id="notification-text"
-          name="notificationText"
-          [(ngModel)]="notificationText"
-          maxlength="200"
-          placeholder="ほかのタブに知らせること"
-        />
-        <button type="submit" [disabled]="!notificationText.trim()">
-          通知する
-        </button>
-      </form>
-      <p class="sent" role="status">{{ sentNotification() }}</p>
-      <div class="log" data-testid="notification-log" aria-live="polite">
-        @for (notification of shared.notifications(); track $index) {
-        <div class="log-item">
-          <span>{{ notification.text }}</span>
-          <small
-            >送信元: {{ notification.from }} / {{ notification.timestamp |
-            date:'HH:mm:ss' }}</small
-          >
-        </div>
-        } @empty {
-        <p class="empty">ほかのタブからの通知がここに届きます。</p>
+    <section>
+      <h2>4. タブ間通信：操作を通知</h2>
+      @if (isProduct) {
+        <p>下のボタンを押すと、メイン画面に「商品画面のボタンが押されました。」と表示されます。</p>
+        <button type="button" (click)="notifyMain()">メイン画面へ通知する</button>
+        @if (sentNotification()) {
+          <p role="status">通知を送信しました。</p>
         }
-      </div>
-      <p class="hint">
-        試す: タブAで通知 → タブBだけに表示。後から開くタブには届きません。
-      </p>
+      } @else {
+        <p>商品画面で「メイン画面へ通知する」を押すと、ここに届きます。</p>
+      }
+      <ul data-testid="notification-log" aria-live="polite">
+        @for (notification of shared.notifications(); track $index) {
+          <li>{{ notification.text }}（{{ notification.timestamp | date: "HH:mm:ss" }}）</li>
+        } @empty {
+          <li>まだ通知はありません。</li>
+        }
+      </ul>
+      <p>送信元には届きません。後から開いた画面にも過去の通知は届きません。</p>
     </section>
   </fieldset>
 
-  <footer>
+  <details>
+    <summary>SharedWorkerの接続情報</summary>
+    <p>{{ shared.greeting() }}</p>
     <p>
-      <code>Angular → MessagePort → SharedWorker → MessagePort → Angular</code>
+      Worker ID：<code data-testid="worker-id">{{ shared.workerId() }}</code>
     </p>
     <p>
-      共有できるのは、同じブラウザープロファイル・同じオリジン（スキーム、ホスト、ポート）のタブです。<br />
-      全タブを閉じてWorkerが終了すると、状態とキャッシュは失われます。詳しくはREADMEへ。
+      この画面の接続ID：<code data-testid="tab-id">{{ shared.tabId() }}</code>
     </p>
-  </footer>
+    <p>
+      接続画面数：<span data-testid="tab-count">{{ shared.snapshot().tabs }}</span>
+    </p>
+  </details>
 </main>

@@ -31,14 +31,14 @@ const server = createServer(async (request, response) => {
     response.writeHead(405).end();
     return;
   }
-  if (url.pathname === "/api/hello") {
+  if (url.pathname === "/api/product") {
     const requestId = ++apiRequests;
     // 同時リクエストの集約を観察しやすくするため、少し遅延を入れる。
     await new Promise((done) => setTimeout(done, 300));
     response.writeHead(200, { "Content-Type": "application/json" });
     response.end(
       JSON.stringify({
-        message: "Hello from API!",
+        product: { id: 1, name: "サンプル商品", price: 1000 },
         requestId,
         fetchedAt: new Date().toISOString(),
       }),

@@ -11,11 +11,10 @@ export class SharedWorkerService implements OnDestroy {
   readonly ready = signal(false);
   readonly greeting = signal('SharedWorkerに接続中…');
   readonly tabId = signal('—');
-  readonly tabNumber = signal(0);
   readonly workerId = signal('—');
   readonly error = signal('');
   readonly snapshot = signal<Snapshot>({
-    counter: 0,
+    favorite: false,
     tabs: 0,
     cache: null,
     cacheLoading: false,
@@ -48,7 +47,7 @@ export class SharedWorkerService implements OnDestroy {
       this.worker = new SharedWorker(
         new URL('shared-worker.js', document.baseURI),
         {
-          name: 'angular20-shared-worker-hello-v2',
+          name: 'shared-product-demo-v1',
         },
       );
       this.worker.port.addEventListener(
@@ -85,8 +84,6 @@ export class SharedWorkerService implements OnDestroy {
     switch (message.type) {
       case 'hello':
         this.tabId.set(message.tabId);
-        this.tabNumber.set(message.tabNumber);
-        document.title = `TAB ${String(message.tabNumber).padStart(2, '0')} · SharedWorker Hello World`;
         this.workerId.set(message.workerId);
         this.greeting.set(message.message);
         this.ready.set(true);
@@ -101,7 +98,11 @@ export class SharedWorkerService implements OnDestroy {
         break;
       case 'cache:result':
         this.cacheSource.set(
-          `${message.source} / 要求元 ${message.requestedBy}`,
+          {
+            network: 'network（APIから取得）',
+            cache: 'cache（メモリから取得）',
+            'in-flight': 'in-flight（取得中の要求を共有）',
+          }[message.source],
         );
         break;
       case 'notification':
